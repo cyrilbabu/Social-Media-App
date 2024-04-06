@@ -1,0 +1,106 @@
+{% extends "users/base.html" %}
+{% load mathfilters %}
+{% block body %}
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6">
+            <div style="overflow-y:scroll; height:100vh;">
+                {% for post in posts %}       
+                <ul class="list-group p-3  border border-0">
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-2 d-flex justify-content-center ">
+                                <img class="border border-1 rounded-circle"  src="{{ post.user.profile.photo.url }}">
+                            </div> 
+                            <div class="col-8">   
+                                <p class="text-3xl font-bold">{{post.user}}</p>
+                                <P class="text-sm py-1">{{post.created}}</p>
+                            </div>
+                        </div>        
+                    </li>
+                    <li class="list-group-item p-0">
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-center ">
+                                    <p class="text-lg font-black">{{ post.title }} </p>
+                            </div>   
+                        </div>  
+                    </li>
+                    <li class="list-group-item p-0">
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-center ">
+                                <img width="100%" src="{{ post.image }}">
+                            </div>    
+                        </div>  
+                    </li>
+                    <li class="list-group-item border border-dark">
+                        <div class="col-12"> 
+                            <div class="flex">
+                                <div class="p-1">
+                                    {% if logged_user in post.liked_by.all %}
+                                        <button id="{{ post.id }}" class="btn-like">
+                                            <i class="bi bi-heart-fill"></i>
+                                        </button>
+                                    {% else %}
+                                        <button id="{{ post.id }}" class="btn-like">
+                                            <i class="bi bi-heart"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>  
+                                <div class="p-1">
+                                    <i class="bi bi-chat-left-dots"></i>
+                                </div> 
+                                <div class="p-1">
+                                    <i class="bi bi-share"></i>
+                                </div>    
+                            </div>  
+                        <div>   
+                            {% if post.liked_by.count < 1 %} 
+                            {% elif post.liked_by.count == 1 %}  
+                                {{ post.liked_by.first }} likes the post
+                            {% elif post.liked_by.count > 1 %}  
+                                {{ post.liked_by.first }} & {{ post.liked_by.count |sub:1 }} Other likes the post
+                            {% endif %}    
+                        </div>
+                        </div>
+                        <i class="bi bi-badge-cc"></i>
+                        {{ post.caption }}
+
+                        <div>
+
+                        </div>  
+                          
+                    </li>
+                </ul>
+                {% endfor %}            
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div>
+                
+            </div>
+        </div>        
+    </div>      
+</div>
+
+
+
+<script type="text/javascript">
+
+    //console.log('This is working')
+    window.CSRF_TOKEN = "{{ csrf_token }}"
+    $(document).on('click','.btn-like',function(){
+        var post_id = this.id
+        $.ajax({
+            method:'POST',
+            url:'/post/like',
+            data:{post_id:post_id,csrfmiddlewaretoken:window.CSRF_TOKEN}
+        })  
+        window.location.href="http://127.0.0.1:8000/post/feed/"
+    })
+
+
+</script>
+
+{% endblock %}
